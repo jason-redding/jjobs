@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="http://witcraft.com/xsd/jobs"
+					 xmlns:xs="http://www.w3.org/2001/XMLSchema"
+					 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					 xsi:schemaLocation="http://www.w3.org/2001/XMLSchema http://www.w3.org/2001/XMLSchema.xsd"
+					 targetNamespace="http://witcraft.com/xsd/jobs"
+					 elementFormDefault="qualified">
+
+	<xs:annotation>
+		<xs:appinfo>Schema for processing system tasks (jobs)</xs:appinfo>
+		<xs:documentation>List of jobs to be processed and run.</xs:documentation>
+	</xs:annotation>
+
+	<xs:simpleType name="flag-name-attr-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="i">
+				<xs:annotation>
+					<xs:documentation>Enables case-insensitive matching.
+						By default, case-insensitive matching assumes that only characters in the US-ASCII charset are being matched. Unicode-aware case-insensitive matching can be enabled by specifying the 'u' (unicode case) flag in conjunction with this flag.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="d">
+				<xs:annotation>
+					<xs:documentation>Enables Unix lines mode.
+						In this mode, only the '\n' line terminator is recognized in the behavior of '.', '^', and '$'.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="m">
+				<xs:annotation>
+					<xs:documentation>Enables multiline mode.
+						In multiline mode the expressions ^ and $ match just after or just before, respectively, a line terminator or the end of the input sequence. By default these expressions only match at the beginning and the end of the entire input sequence.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="s">
+				<xs:annotation>
+					<xs:documentation>Enables dotall mode.
+						In dotall mode, the expression '.' matches any character, including a line terminator. By default this expression does not match line terminators.
+
+						(The 's' is a mnemonic for "single-line" mode, which is what this is called in Perl.)</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="u">
+				<xs:annotation>
+					<xs:documentation>Enables Unicode-aware case folding.
+						When this flag is specified then case-insensitive matching, when enabled by the 'i' (case insensitive) flag, is done in a manner consistent with the Unicode Standard. By default, case-insensitive matching assumes that only characters in the US-ASCII charset are being matched.
+
+						Specifying this flag may impose a performance penalty.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="x">
+				<xs:annotation>
+					<xs:documentation>Permits whitespace and comments in pattern.
+						In this mode, whitespace is ignored, and embedded comments starting with # are ignored until the end of a line.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="matching-file-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="file"/>
+			<xs:enumeration value="directory"/>
+			<xs:enumeration value="any"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="flags-attr-type">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[idmsux]*(-[idmsux]+)?"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="file-date-relative-to-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="date-modified"/>
+			<xs:enumeration value="date-created"/>
+			<xs:enumeration value="now"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="nonNegativeDecimal">
+		<xs:restriction base="xs:decimal">
+			<xs:minInclusive value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="file-size-unit-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="B">
+				<xs:annotation>
+					<xs:documentation>Byte</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="K">
+				<xs:annotation>
+					<xs:documentation>Kilobyte</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="M">
+				<xs:annotation>
+					<xs:documentation>Megabyte</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="G">
+				<xs:annotation>
+					<xs:documentation>Gigabyte</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="T">
+				<xs:annotation>
+					<xs:documentation>Terabyte</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="P">
+				<xs:annotation>
+					<xs:documentation>Petabyte</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="E">
+				<xs:annotation>
+					<xs:documentation>Exabyte</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="Z">
+				<xs:annotation>
+					<xs:documentation>Zettabyte</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="Y">
+				<xs:annotation>
+					<xs:documentation>Yottabyte</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="date-adjuster-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="first-day-of-month"/>
+			<xs:enumeration value="first-day-of-next-month"/>
+			<xs:enumeration value="first-day-of-next-year"/>
+			<xs:enumeration value="first-day-of-year"/>
+			<xs:enumeration value="last-day-of-month"/>
+			<xs:enumeration value="last-day-of-year"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="date-precision-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="year"/>
+			<xs:enumeration value="month"/>
+			<xs:enumeration value="day"/>
+			<xs:enumeration value="hour"/>
+			<xs:enumeration value="minute"/>
+			<xs:enumeration value="second"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="date-bias-type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="start"/>
+			<xs:enumeration value="end"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="date-time-duration-type">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(now|[+-]?P([+-]?\d+W|([+-]?\d+Y)?([+-]?\d+M)?([+-]?\d+D)?(T([+-]?\d+H)?([+-]?\d+M)?([+-]?\d+S)?)?)|\d{4,}-\d{2}(-\d{2}(T\d{2}(:\d{2}(:\d{2}(\.\d{1,3})?)?)?(Z|[+-]\d{2}(:?\d{2})?)?)?)?)?"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="e-boolean">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="true"/>
+			<xs:enumeration value="false"/>
+			<xs:enumeration value="yes"/>
+			<xs:enumeration value="no"/>
+			<xs:enumeration value="on"/>
+			<xs:enumeration value="off"/>
+			<xs:enumeration value="1"/>
+			<xs:enumeration value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="element-jobs">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="job" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Defines a Job that contains at least one Job Action.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:choice minOccurs="1" maxOccurs="unbounded">
+							<xs:element ref="jdbc" maxOccurs="unbounded"/>
+							<xs:element ref="delete-files" maxOccurs="unbounded"/>
+						</xs:choice>
+						<xs:element name="logging" minOccurs="0">
+							<xs:complexType>
+								<xs:all minOccurs="1">
+									<xs:element name="directory">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+								</xs:all>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="name" type="xs:string" use="required"/>
+					<xs:attribute name="async" type="e-boolean" default="false">
+						<xs:annotation>
+							<xs:documentation>Determines whether to run this Job asynchronously. If set to a truth value, subsequent jobs will not wait for this Job to complete, and will begin immediately.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="disabled" type="e-boolean" default="false">
+						<xs:annotation>
+							<xs:documentation>If set to a truth value, this Job will not run.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="test" type="e-boolean" default="false">
+						<xs:annotation>
+							<xs:documentation>If set to a truth value, this Job will run but will not have any side effects. In other words, this Job will "pretend" to run.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+
+	<xs:complexType name="string-matcher-type">
+		<xs:group ref="string-matcher-group"/>
+	</xs:complexType>
+
+	<xs:group name="group-date-matcher">
+		<xs:all>
+			<xs:element name="before" type="file-date-value-type" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation></xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="after" type="file-date-value-type" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation></xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+	</xs:group>
+
+	<xs:complexType name="date-matcher-type">
+		<xs:group ref="group-date-matcher"/>
+		<xs:attributeGroup ref="date-attrs-group"/>
+	</xs:complexType>
+
+	<xs:complexType name="size-matcher-type">
+		<xs:all>
+			<xs:element name="min" type="file-size-value-type" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation></xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="max" type="file-size-value-type" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation></xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="string-matches-value-type">
+		<xs:annotation>
+			<xs:documentation>The MATCHES criteria container allows specifying a number of regular expression patterns to use.</xs:documentation>
+		</xs:annotation>
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="pattern" type="string-matches-pattern-value-type"/>
+			<xs:element name="regex" type="string-matches-regex-value-type"/>
+		</xs:choice>
+		<xs:attribute name="flags" type="flags-attr-type"/>
+	</xs:complexType>
+
+	<xs:complexType name="string-matches-pattern-value-type">
+		<xs:group ref="value-node-group"/>
+		<xs:attribute name="flags" type="flags-attr-type"/>
+		<xs:attributeGroup ref="string-criteria-attrs-group"/>
+	</xs:complexType>
+
+	<xs:complexType name="string-matches-regex-value-type">
+		<xs:all>
+			<xs:element name="pattern">
+				<xs:complexType>
+					<xs:group ref="value-node-group"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="flags" minOccurs="0">
+				<xs:complexType>
+					<xs:choice>
+						<xs:element name="flag" minOccurs="0" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:attributeGroup ref="flags-as-attribute-attrs-group"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+		<xs:attribute name="negate" type="e-boolean">
+			<xs:annotation>
+				<xs:documentation>If set to a truth value, this criteria will negate its "truthness" when evaluated.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="file-date-value-type">
+		<xs:group ref="value-node-group"/>
+		<xs:attribute ref="relative-to"/>
+		<xs:attributeGroup ref="date-attrs-group"/>
+	</xs:complexType>
+
+	<xs:complexType name="file-date-type">
+		<xs:simpleContent>
+			<xs:extension base="date-time-duration-type">
+				<xs:attribute ref="relative-to"/>
+				<xs:attributeGroup ref="date-attrs-group"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="file-size-type">
+		<xs:simpleContent>
+			<xs:extension base="nonNegativeDecimal">
+				<xs:attribute ref="unit"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="file-size-value-type">
+		<xs:group ref="value-node-group"/>
+		<xs:attribute ref="unit"/>
+	</xs:complexType>
+
+	<xs:attribute name="state" type="e-boolean">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+
+	<xs:attribute name="relative-to" type="file-date-relative-to-type">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+
+	<xs:attribute name="unit" type="file-size-unit-type">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+
+	<xs:attributeGroup name="string-criteria-attrs-group">
+		<xs:attribute name="ignore-case" type="e-boolean">
+			<xs:annotation>
+				<xs:documentation>If set to a truth value, this criteria will ignore case when comparing against its context value.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="negate" type="e-boolean">
+			<xs:annotation>
+				<xs:documentation>If set to a truth value, this criteria will negate its "truthness" when evaluated.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:attributeGroup>
+
+	<xs:attributeGroup name="flags-as-attribute-attrs-group">
+		<xs:attribute name="name" type="flag-name-attr-type" use="required">
+			<xs:annotation>
+				<xs:documentation></xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute ref="state"/>
+	</xs:attributeGroup>
+
+	<xs:attributeGroup name="date-attrs-group">
+		<xs:attribute name="truncate-to" type="date-precision-type"/>
+		<xs:attribute name="bias" type="date-bias-type"/>
+		<!--<xs:attribute name="adjust-to" type="date-adjuster-type"/>-->
+	</xs:attributeGroup>
+
+	<xs:element name="jobs" type="element-jobs">
+		<xs:annotation>
+			<xs:documentation>Container for a list of jobs (&lt;job&gt;)</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+
+	<xs:element name="delete-files">
+		<xs:annotation>
+			<xs:documentation>Job Action whose function is to delete files from a given directory.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:choice>
+				<xs:element name="matching" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>A matching group that contains criteria, and is, itself, logically OR'd with its other sibling &lt;code&gt;matching&lt;/code&gt; elements.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:group ref="group-matching-contexts" minOccurs="0" maxOccurs="1"/>
+						<xs:attribute name="type" type="matching-file-type" default="any"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+			<xs:attribute name="directory" type="xs:string" use="required"/>
+			<xs:attribute name="recursive" type="e-boolean" default="false"/>
+			<xs:attribute name="force" type="e-boolean" default="false"/>
+			<xs:attribute name="async" type="e-boolean" default="false">
+				<xs:annotation>
+					<xs:documentation>Determines whether to run this Job Action asynchronously. If set to a truth value, subsequent actions will not wait for this Job Action to complete, and will begin immediately.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="disabled" type="e-boolean" default="false">
+				<xs:annotation>
+					<xs:documentation>If set to a truth value, this Job Action will not run.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="test" type="e-boolean" default="false">
+				<xs:annotation>
+					<xs:documentation>If set to a truth value, this Job Action will run but will not have any side effects. In other words, this Job Action will "pretend" to run.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="jdbc">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element name="procedure" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="name" use="required">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="1"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="script" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:choice maxOccurs="unbounded">
+							<xs:element name="sql">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="var"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+			<xs:attribute name="connect" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="username" type="xs:string"/>
+			<xs:attribute name="password" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="matches" type="string-matches-value-type"/>
+
+	<xs:element name="value">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<!--<xs:attribute name="type" default="string">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="number"/>
+								<xs:enumeration value="file"/>
+								<xs:enumeration value="string"/>
+								<xs:enumeration value="time"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>-->
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="value-using">
+		<xs:annotation>
+			<xs:documentation>Specifies the value string to use. Can contain constructs in the form of ${column_name}, where "column_name" is the name of the column whose value for the current row should replace the construct.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="result-set" use="required">
+						<xs:annotation>
+							<xs:documentation>Specifies the variable name whose value is a collection of items (e.g. "result-set").</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="starts-with" type="type-string-criteria">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+	</xs:element>
+
+	<xs:element name="ends-with" type="type-string-criteria">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+	</xs:element>
+
+	<xs:complexType name="type-string-criteria">
+		<xs:group ref="value-node-group"/>
+		<xs:attributeGroup ref="string-criteria-attrs-group"/>
+	</xs:complexType>
+	
+	<xs:group name="string-matcher-group">
+		<xs:choice>
+			<xs:element name="equals" type="type-string-criteria">
+				<xs:annotation>
+					<xs:documentation>The EQUALS criteria compares itself to its entire context value.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="matches"/>
+			<xs:element ref="starts-with"/>
+			<xs:element ref="ends-with"/>
+		</xs:choice>
+	</xs:group>
+
+	<xs:group name="value-node-group">
+		<xs:choice>
+			<xs:element ref="value"/>
+			<xs:element ref="value-using"/>
+		</xs:choice>
+	</xs:group>
+
+	<xs:group name="group-matching-contexts">
+		<xs:all>
+			<xs:element name="name" type="string-matcher-type" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Provides the name of the file as the context value to all nested Criteria.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="path" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Provides the path of the file as the context value to all nested Criteria.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:group ref="string-matcher-group"/>
+					<xs:attribute name="of" default="file">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="file"/>
+								<xs:enumeration value="directory"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="owner" type="string-matcher-type" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Provides the owner of the file as the context value to all nested Criteria.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="date-modified" type="date-matcher-type" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Provides the date the file was last modified as the context value to all nested Criteria.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="date-created" type="date-matcher-type" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Provides the date the file was created as the context value to all nested Criteria.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="size" type="size-matcher-type" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Provides the size of the file as the context value to all nested Criteria.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+	</xs:group>
+</xs:schema>

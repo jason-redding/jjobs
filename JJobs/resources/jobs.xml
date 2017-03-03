@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs xmlns="http://witcraft.com/xsd/jobs"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xsi:schemaLocation="http://witcraft.com/xsd/jobs http://witcraft.com/xsd/jobs.xsd">
+	<job name="Download from file_patterns..." disabled="true">
+		<jdbc connect="jdbc:mysql://localhost:3306/jjobs?serverTimezone=America/New_York" username="jdbc-service-account" password="jdbc_password">
+			<script>
+				<sql var="rows">SELECT name, path, datetime, max_size FROM file_patterns;</sql>
+			</script>
+		</jdbc>
+		<logging>
+			<directory>/tmp</directory>
+		</logging>
+	</job>
+
+	<job name="Clean Temp Directory">
+		<delete-files directory="/tmp" recursive="true">
+			<matching type="file">
+				<name>
+					<starts-with>
+						<value>jjobs-</value>
+					</starts-with>
+				</name>
+			</matching>
+		</delete-files>
+		<logging>
+			<directory>/tmp</directory>
+		</logging>
+	</job>
+	
+	<job name="Clean Temp Directory using data pulled from database" test="true" disabled="true">
+		<delete-files directory="/tmp" recursive="true">
+			<matching type="file">
+				<path of="file">
+					<matches>
+						<pattern>
+							<value-using result-set="rows">^${file}</value-using>
+						</pattern>
+					</matches>
+				</path>
+				<name>
+					<matches>
+						<pattern>
+							<value-using result-set="rows">${name}</value-using>
+						</pattern>
+					</matches>
+				</name>
+			</matching>
+		</delete-files>
+		<logging>
+			<directory>/tmp</directory>
+		</logging>
+	</job>
+</jobs>

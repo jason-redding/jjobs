@@ -1,0 +1,42 @@
+@mixin prefix($name, $value...) {
+	-webkit-#{$name}: $value;
+	-moz-#{$name}: $value;
+	-ms-#{$name}: $value;
+	-o-#{$name}: $value;
+	#{$name}: $value;
+}
+
+.ui-corner-all-inherit {
+	@include prefix(border-top-left-radius, inherit);
+	@include prefix(border-top-right-radius, inherit);
+	@include prefix(border-bottom-right-radius, inherit);
+	@include prefix(border-bottom-left-radius, inherit);
+}
+.ui-corner-tl-inherit {
+	@include prefix(border-top-left-radius, inherit);
+}
+.ui-corner-tr-inherit {
+	@include prefix(border-top-right-radius, inherit);
+}
+.ui-corner-bl-inherit {
+	@include prefix(border-bottom-left-radius, inherit);
+}
+.ui-corner-br-inherit {
+	@include prefix(border-bottom-right-radius, inherit);
+}
+.ui-corner-top-inherit {
+	@include prefix(border-top-right-radius, inherit);
+	@include prefix(border-top-left-radius, inherit);
+}
+.ui-corner-right-inherit {
+	@include prefix(border-top-right-radius, inherit);
+	@include prefix(border-bottom-right-radius, inherit);
+}
+.ui-corner-bottom-inherit {
+	@include prefix(border-bottom-right-radius, inherit);
+	@include prefix(border-bottom-left-radius, inherit);
+}
+.ui-corner-left-inherit {
+	@include prefix(border-top-left-radius, inherit);
+	@include prefix(border-bottom-left-radius, inherit);
+}
