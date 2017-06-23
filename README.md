@@ -1,10 +1,8 @@
 # JJobs
 
-```
-*NOTE: All code is written using tabs for indentation with tab-size of 2.*
-			To view as intended, add URL parameter "ts=2".
-			(Example: https://github.com/jason-redding/jjobs/blob/master/JJobs/pom.xml?ts=2)
-```
+
+*NOTE: All code is written using tabs for indentation with tab-size of 2.* To view as intended, add URL parameter "ts=2". (Example: https://github.com/jason-redding/jjobs/blob/master/JJobs/pom.xml?ts=2)
+
 
 #### Critical Files
 - [/JJobs/src/main/java/com/witcraft/jjobs/helpers/DateFeedback.java?ts=2](/jason-redding/jjobs/blob/master/JJobs/src/main/java/com/witcraft/jjobs/helpers/DateFeedback.java?ts=2)
